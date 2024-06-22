@@ -1,1 +1,1 @@
-# Discord music bot with voice control
+# Discord music bot

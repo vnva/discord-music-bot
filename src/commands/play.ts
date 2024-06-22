@@ -10,8 +10,10 @@ export class PlayBotCommand extends BotCommand {
     super();
 
     this.setName('play');
-    this.setDescription('Play song.');
-    this.addStringOption((o) => o.setName('target').setDescription('Search request or youtube link').setRequired(true));
+    this.setDescription("Play a song or add to queue if it's already playing");
+    this.addStringOption((o) =>
+      o.setName('target').setDescription('Search query or link to youtube video').setRequired(true),
+    );
   }
 
   async execute(interaction: Interaction, bot: Bot) {
@@ -24,12 +26,12 @@ export class PlayBotCommand extends BotCommand {
 
     if (!connection) {
       if (!('voice' in interaction.member) || !interaction.member.voice.channelId) {
-        await interaction.editReply('Please connect to voice channel.');
+        await interaction.editReply('Please first connect to the desired voice chat yourself');
         return;
       }
 
       if (!interaction.member.voice.channel?.guild.voiceAdapterCreator) {
-        await interaction.editReply('Cannot find voice adapter creator.');
+        await interaction.editReply("Can't find voice adapter creator");
         return;
       }
 
@@ -51,12 +53,12 @@ export class PlayBotCommand extends BotCommand {
     const result = await findYoutubeVideo(target);
 
     if (!result) {
-      await interaction.editReply(`Cannot find this target.`);
+      await interaction.editReply("Can't find this target");
       return;
     }
 
     if (!Array.isArray(result)) {
-      await connection.player.add(interaction, result);
+      await connection.audioPlayer.add(interaction, result);
       return;
     }
 
@@ -88,14 +90,9 @@ export class PlayBotCommand extends BotCommand {
       const selectedResult = result[Number(confirmation.customId)];
 
       await confirmation.update({ content: 'Song selected', embeds: [], components: [] });
-      await connection.player.add(interaction, selectedResult);
+      await connection.audioPlayer.add(interaction, selectedResult);
     } catch {
       await interaction.deleteReply();
-      // await interaction.editReply({
-      //   content: 'Confirmation not received within 30 seconds, cancelling',
-      //   embeds: [],
-      //   components: [],
-      // });
     }
   }
 }

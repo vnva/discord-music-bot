@@ -14,13 +14,15 @@ export class SkipBotCommand extends BotCommand {
     if (!interaction.isRepliable() || !interaction.isChatInputCommand() || !interaction.member || !interaction.guildId)
       return;
 
+    await interaction.deferReply({ ephemeral: true });
+
     let connection = bot.voiceConnections.get(interaction.guildId);
 
     if (!connection) {
-      await interaction.reply('Bot not have active connection.');
+      await interaction.reply('No active voice connection for bot');
       return;
     }
 
-    await connection.player.skip(interaction);
+    await connection.audioPlayer.skip(interaction);
   }
 }

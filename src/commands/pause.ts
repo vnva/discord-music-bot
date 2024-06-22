@@ -7,7 +7,7 @@ export class PauseBotCommand extends BotCommand {
     super();
 
     this.setName('pause');
-    this.setDescription('Pause song.');
+    this.setDescription('Toggle playback pause');
   }
 
   async execute(interaction: Interaction, bot: Bot) {
@@ -17,17 +17,12 @@ export class PauseBotCommand extends BotCommand {
     let connection = bot.voiceConnections.get(interaction.guildId);
 
     if (!connection) {
-      await interaction.reply('Bot not have active connection.');
+      await interaction.reply('No active voice connection for bot');
       return;
     }
 
-    if (connection.player.isPaused) {
-      await interaction.reply('Already paused.');
-      return;
-    }
+    connection.audioPlayer.togglePause();
 
-    await connection.player.pause(true);
-
-    await interaction.reply(`Paused.`);
+    await interaction.reply(`Playback ${connection.audioPlayer.isPaused ? 'paused' : 'unpaused'}`);
   }
 }

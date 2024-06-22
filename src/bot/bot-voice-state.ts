@@ -1,18 +1,18 @@
-import { AudioPlayerStatus, VoiceConnection, VoiceConnectionStatus } from '@discordjs/voice';
+import { VoiceConnection, VoiceConnectionStatus } from '@discordjs/voice';
+import { clearPresence, logger } from '../lib';
 import { Bot } from './bot';
-import { BotPlayer } from './bot-player';
-import { logger } from '../lib';
+import { BotAudioPlayer } from './bot-audio-player';
 
 export class BotVoiceConnection {
   private readonly bot: Bot;
-  readonly player: BotPlayer;
+  readonly audioPlayer: BotAudioPlayer;
 
   readonly instance: VoiceConnection;
 
   constructor(bot: Bot, voiceConnection: VoiceConnection) {
     this.instance = voiceConnection;
     this.bot = bot;
-    this.player = new BotPlayer(bot, this);
+    this.audioPlayer = new BotAudioPlayer(bot, this);
 
     this.initialise();
 
@@ -32,11 +32,13 @@ export class BotVoiceConnection {
   disconnect() {
     this.bot.voiceConnections.delete(this.instance.joinConfig.guildId);
 
-    this.player.disconnect();
+    this.audioPlayer.disconnect();
 
     this.instance.disconnect();
     this.instance.removeAllListeners();
+    this.instance.destroy();
 
     logger.info(`Disconnected: ${this.instance.joinConfig.guildId}`);
+    clearPresence(this.bot);
   }
 }

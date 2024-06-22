@@ -9,24 +9,24 @@ export class ConnectBotCommand extends BotCommand {
     super();
 
     this.setName('connect');
-    this.setDescription('Connect to voice channel.');
+    this.setDescription('Connect bot to voice chat');
   }
 
   async execute(interaction: Interaction, bot: Bot) {
     if (!interaction.isRepliable() || !interaction.member || !interaction.guildId) return;
 
     if (!('voice' in interaction.member) || !interaction.member.voice.channelId) {
-      await interaction.reply('Please connect to voice channel.');
+      await interaction.reply('Please first connect to the desired voice chat yourself');
       return;
     }
 
     if (!interaction.member.voice.channel?.guild.voiceAdapterCreator) {
-      await interaction.reply('Cannot find voice adapter creator.');
+      await interaction.reply("Can't find voice adapter creator");
       return;
     }
 
     if (getVoiceConnection(interaction.guildId)) {
-      await interaction.reply('Already connected.');
+      await interaction.reply('The bot is already connected to voice chat');
       return;
     }
 
@@ -41,6 +41,6 @@ export class ConnectBotCommand extends BotCommand {
     const botVoiceConnection = new BotVoiceConnection(bot, voiceConnection);
     bot.voiceConnections.set(interaction.guildId, botVoiceConnection);
 
-    await interaction.reply('Connected.');
+    await interaction.reply('Bot is connected to voice chat');
   }
 }

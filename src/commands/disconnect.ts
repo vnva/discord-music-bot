@@ -7,7 +7,7 @@ export class DisconnectBotCommand extends BotCommand {
     super();
 
     this.setName('disconnect');
-    this.setDescription('Disconnect from voice channel.');
+    this.setDescription('Disconnect bot from voice chat');
   }
 
   async execute(interaction: Interaction, bot: Bot) {
@@ -17,10 +17,10 @@ export class DisconnectBotCommand extends BotCommand {
 
     if (connection) {
       connection.disconnect();
-      await interaction.reply('Disconnected.');
+      await interaction.reply('Bot disconnected from voice chat');
       return;
     }
 
-    await interaction.reply('Active connection not exists.');
+    await interaction.reply('No active voice connection for bot');
   }
 }

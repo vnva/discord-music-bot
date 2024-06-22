@@ -1,5 +1,4 @@
 import { Client, ClientOptions, Events, GatewayIntentBits } from 'discord.js';
-import { getVoiceConnection, getVoiceConnections } from '@discordjs/voice';
 import { BOT_COMMANDS } from '../commands';
 import { BotVoiceConnection } from './bot-voice-state';
 import { logger } from '../lib';

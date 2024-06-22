@@ -2,12 +2,12 @@ import { Bot } from '../bot';
 import { BotCommand } from '../bot/bot-command';
 import { Interaction } from 'discord.js';
 
-export class UnpauseBotCommand extends BotCommand {
+export class RepeatBotCommand extends BotCommand {
   constructor() {
     super();
 
-    this.setName('unpause');
-    this.setDescription('Unpause song.');
+    this.setName('repeat');
+    this.setDescription('Toggle song repeat');
   }
 
   async execute(interaction: Interaction, bot: Bot) {
@@ -17,17 +17,12 @@ export class UnpauseBotCommand extends BotCommand {
     let connection = bot.voiceConnections.get(interaction.guildId);
 
     if (!connection) {
-      await interaction.reply('Bot not have active connection.');
+      await interaction.reply('No active voice connection for bot');
       return;
     }
 
-    if (!connection.player.isPaused) {
-      await interaction.reply('Already unpaused.');
-      return;
-    }
+    connection.audioPlayer.toggleRepeat();
 
-    await connection.player.unpause(true);
-
-    await interaction.reply(`Unpaused.`);
+    await interaction.reply(`Repeat ${connection.audioPlayer.isRepeat ? 'enabled' : 'disabled'}`);
   }
 }
