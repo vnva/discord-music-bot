@@ -1,0 +1,29 @@
+{
+  "name": "discord-music-bot",
+  "private": true,
+  "scripts": {
+    "dev": "tsx --watch src/start-bot.ts",
+    "start": "tsx src/start-bot.ts",
+    "deploy-commands": "tsx src/deploy-bot-commands.ts",
+    "lint": "oxlint .eslintrc",
+    "format": "prettier -w"
+  },
+  "author": "Vyacheslav Ananev <vnva.dev@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/voice": "^0.17.0",
+    "@types/node": "^20.14.7",
+    "audify": "^1.9.0",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "gtts": "^0.2.1",
+    "libsodium-wrappers": "^0.7.13",
+    "oxlint": "^0.4.4",
+    "play-dl": "^1.9.7",
+    "prettier": "^3.3.2",
+    "tsx": "^4.15.7",
+    "typescript": "^5.5.2",
+    "winston": "^3.13.0",
+    "ytdl-core": "^4.11.5"
+  }
+}

@@ -1,0 +1,8 @@
+services:
+  discord-music-bot:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - path: .env
+        required: true
