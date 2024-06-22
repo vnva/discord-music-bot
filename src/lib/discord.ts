@@ -3,7 +3,7 @@ import { ENV_VARIABLES } from './env-variables';
 import { YoutubeVideoInfo } from './youtube';
 
 export async function setYoutubePresence(client: Client, video: YoutubeVideoInfo) {
-  if (!ENV_VARIABLES.ENABLE_PESENCE) return;
+  if (!ENV_VARIABLES.ENABLE_PRESENCE) return;
 
   try {
     const { title, url, image } = video;
@@ -20,7 +20,7 @@ export async function setYoutubePresence(client: Client, video: YoutubeVideoInfo
 }
 
 export async function clearPresence(client: Client) {
-  if (!ENV_VARIABLES.ENABLE_PESENCE) return;
+  if (!ENV_VARIABLES.ENABLE_PRESENCE) return;
 
   try {
     client.user?.setActivity();

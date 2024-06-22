@@ -5,7 +5,7 @@ interface EnvVariables {
   BOT_APPLICATION_ID: string;
   TEST_GUILD_ID: string | null;
   PRODUCTION: boolean;
-  ENABLE_PESENCE: boolean;
+  ENABLE_PRESENCE: boolean;
 }
 
 function readRequiredStringVariable(key: string) {
@@ -40,5 +40,5 @@ export const ENV_VARIABLES: EnvVariables = {
   BOT_APPLICATION_ID: readRequiredStringVariable('BOT_APPLICATION_ID'),
   TEST_GUILD_ID: readStringVariable('TEST_GUILD_ID'),
   PRODUCTION: readBooleanVariable('PRODUCTION', true),
-  ENABLE_PESENCE: readBooleanVariable('ENABLE_PESENCE', false),
+  ENABLE_PRESENCE: readBooleanVariable('ENABLE_PRESENCE', false),
 };
