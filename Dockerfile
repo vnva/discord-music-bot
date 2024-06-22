@@ -10,5 +10,6 @@ RUN apt -y install ffmpeg
 COPY . /app
 WORKDIR /app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm deploy-commands
 
 CMD [ "pnpm", "start" ]
