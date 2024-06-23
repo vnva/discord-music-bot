@@ -1,5 +1,5 @@
+import playdl, { InfoData } from 'play-dl';
 import { EmbedBuilder } from 'discord.js';
-import playdl from 'play-dl';
 
 const YOUTUBE_LOGO_PLACEHOLDER =
   'https://upload.wikimedia.org/wikipedia/commons/3/34/Logo_oficial_de_YouTube_%282013-2017%29.jpg';
@@ -26,10 +26,24 @@ export function normaliseYoutubeVideoUrl(url: string): string | null {
   return null;
 }
 
-export async function findYoutubeVideo(
-  target: string,
-  limit = 5,
-): Promise<YoutubeVideoInfo | YoutubeVideoInfo[] | null> {
+export function mapPlaydlInfoData(data: InfoData): YoutubeVideoInfo {
+  const {
+    video_details: { url, channel, durationInSec, title = 'Unknown', thumbnails, description = 'No info' },
+  } = data;
+
+  const { name: channelName = 'Unknown' } = channel ?? {};
+
+  return {
+    url,
+    title,
+    description,
+    channel: channelName,
+    duration: durationInSec,
+    image: thumbnails.at(-1)?.url ?? YOUTUBE_LOGO_PLACEHOLDER,
+  };
+}
+
+export async function findYoutubeVideo(target: string, limit = 5): Promise<YoutubeVideoInfo[] | null> {
   if (!target) return null;
 
   if (/youtube.com/i.test(target)) {
@@ -41,14 +55,7 @@ export async function findYoutubeVideo(
       const response = await playdl.video_basic_info(url);
       if (response) valid = true;
 
-      return {
-        url,
-        title: response.video_details.title ?? 'Unknown',
-        image: response.video_details.thumbnails.at(-1)?.url ?? YOUTUBE_LOGO_PLACEHOLDER,
-        description: response.video_details.description ?? 'No info',
-        duration: response.video_details.durationInSec,
-        channel: response.video_details.channel?.name ?? 'Unknown',
-      };
+      return [mapPlaydlInfoData(response)];
     } catch {
       return null;
     }
@@ -66,7 +73,6 @@ export async function findYoutubeVideo(
       duration: i.durationInSec,
       channel: i.channel?.name ?? 'Unknown',
     }));
-    if (mappedResults.length === 1) return mappedResults[0];
 
     return mappedResults;
   } catch {

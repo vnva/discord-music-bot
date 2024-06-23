@@ -1,24 +1,33 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Interaction } from 'discord.js';
-import { findYoutubeVideo, secondsToHms } from '../lib';
+import { AutocompleteInteraction, Interaction } from 'discord.js';
+import { findYoutubeVideo, mapPlaydlInfoData, secondsToHms } from '../lib';
 import { Bot } from '../bot';
 import { BotCommand } from '../bot/bot-command';
 import { BotVoiceConnection } from '../bot/bot-voice-state';
 import { joinVoiceChannel } from '@discordjs/voice';
+import playdl from 'play-dl';
 
 export class PlayBotCommand extends BotCommand {
   constructor() {
     super();
 
     this.setName('play');
-    this.setDescription("Play a song or add to queue if it's already playing");
+    this.setDescription(`Play a song or add to queue if it's already playing`);
     this.addStringOption((o) =>
-      o.setName('target').setDescription('Search query or link to youtube video').setRequired(true),
+      o
+        .setName('target')
+        .setDescription('Search query or link to youtube video')
+        .setAutocomplete(true)
+        .setRequired(true),
     );
   }
 
   async execute(interaction: Interaction, bot: Bot) {
-    if (!interaction.isRepliable() || !interaction.isChatInputCommand() || !interaction.member || !interaction.guildId)
+    if (interaction.isAutocomplete()) {
+      await this.autocomplete(interaction);
       return;
+    }
+
+    if (!interaction.isChatInputCommand() || !interaction.member || !interaction.guildId) return;
 
     await interaction.deferReply({ ephemeral: true });
 
@@ -50,49 +59,41 @@ export class PlayBotCommand extends BotCommand {
     }
 
     const target = interaction.options.getString('target', true);
-    const result = await findYoutubeVideo(target);
+    const info = await playdl.video_basic_info(target);
 
-    if (!result) {
-      await interaction.editReply("Can't find this target");
+    if (!info) {
+      await interaction.editReply('Could not find this song');
       return;
     }
 
-    if (!Array.isArray(result)) {
-      await connection.audioPlayer.add(interaction, result);
+    await connection.audioPlayer.add(interaction, mapPlaydlInfoData(info));
+  }
+
+  async autocomplete(interaction: AutocompleteInteraction) {
+    const target = interaction.options.getFocused();
+
+    if (!target) {
+      await interaction.respond([]);
       return;
     }
 
-    const embeds = result.map((i) =>
-      new EmbedBuilder()
-        .setTitle(i.title)
-        .setDescription(i.description)
-        .setThumbnail(i.image)
-        .setURL(i.url)
-        .setFields([
-          { name: 'Channel', value: i.channel },
-          { name: 'Duration', value: secondsToHms(i.duration) },
-        ]),
-    );
+    const videos = await findYoutubeVideo(target, 20);
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      result.map((_, index) =>
-        new ButtonBuilder()
-          .setCustomId(`${index}`)
-          .setStyle(ButtonStyle.Primary)
-          .setLabel(`${index + 1}`),
-      ),
-    );
-
-    const response = await interaction.editReply({ content: 'Select song', embeds, components: [row] });
-
-    try {
-      const confirmation = await response.awaitMessageComponent({ time: 30_000 });
-      const selectedResult = result[Number(confirmation.customId)];
-
-      await confirmation.update({ content: 'Song selected', embeds: [], components: [] });
-      await connection.audioPlayer.add(interaction, selectedResult);
-    } catch {
-      await interaction.deleteReply();
+    if (!videos) {
+      await interaction.respond([]);
+      return;
     }
+
+    await interaction.respond(
+      videos.map((v) => {
+        let name = `[${secondsToHms(v.duration, true)}] ${v.title}`;
+
+        if (name.length >= 100) {
+          name = name.slice(0, 100);
+        }
+
+        return { name: name, value: v.url };
+      }),
+    );
   }
 }
