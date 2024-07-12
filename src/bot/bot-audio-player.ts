@@ -9,7 +9,7 @@ import {
 } from '../lib';
 import { Bot } from './bot';
 import { BotVoiceConnection } from './bot-voice-state';
-import ytdl from 'ytdl-core';
+import ytdl from '@distube/ytdl-core';
 
 export class BotAudioPlayer {
   private readonly instance = createAudioPlayer();
