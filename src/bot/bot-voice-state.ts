@@ -32,10 +32,9 @@ export class BotVoiceConnection {
   disconnect() {
     this.bot.voiceConnections.delete(this.instance.joinConfig.guildId);
 
-    this.audioPlayer.disconnect();
+    this.audioPlayer.stop();
 
     this.instance.disconnect();
-    this.instance.removeAllListeners();
     this.instance.destroy();
 
     logger.info(`Disconnected: ${this.instance.joinConfig.guildId}`);

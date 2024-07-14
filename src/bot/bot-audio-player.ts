@@ -5,6 +5,7 @@ import {
   YoutubeVideoInfo,
   clearPresence,
   createYoutubeVideoInfoEmbed,
+  logger,
   setYoutubePresence,
 } from '../lib';
 import { Bot } from './bot';
@@ -65,10 +66,16 @@ export class BotAudioPlayer {
       return;
     }
 
-    const resource = await this.createResource(item.url);
-    this.instance.play(resource);
-
-    setYoutubePresence(this.bot, item);
+    try {
+      const resource = await this.createResource(item.url);
+      this.instance.play(resource);
+      setYoutubePresence(this.bot, item);
+    } catch (error) {
+      this.lastInteraction?.editReply({ content: 'Unknown error', embeds: [] });
+      logger.error(error);
+      this.stop();
+      return;
+    }
 
     if (!(ended && this.isRepeat)) {
       this.current = item;
@@ -125,11 +132,5 @@ export class BotAudioPlayer {
     this.queue = [];
     this.current = null;
     clearPresence(this.bot);
-  }
-
-  disconnect() {
-    this.queue = [];
-    this.instance.stop();
-    this.instance.removeAllListeners();
   }
 }
